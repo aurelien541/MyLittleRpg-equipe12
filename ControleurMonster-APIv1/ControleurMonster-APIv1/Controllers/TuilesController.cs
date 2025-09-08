@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using ControleurMonster_APIv1.Data.Context;
+using ControleurMonster_APIv1.Models;
+using ControleurMonster_APIv1.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ControleurMonster_APIv1.Data.Context;
-using ControleurMonster_APIv1.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ControleurMonster_APIv1.Controllers
 {
@@ -15,10 +16,12 @@ namespace ControleurMonster_APIv1.Controllers
     public class TuilesController : ControllerBase
     {
         private readonly MonsterContext _context;
+        private readonly TuileService _tuileService;
 
-        public TuilesController(MonsterContext context)
+        public TuilesController(MonsterContext context, TuileService tuileService)
         {
             _context = context;
+            _tuileService = tuileService;
         }
 
         // GET: api/Tuiles
@@ -29,94 +32,24 @@ namespace ControleurMonster_APIv1.Controllers
         }
 
         // GET: api/Tuiles/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Tuile>> GetTuile(int id)
+        [HttpGet("{x:int}/{y:int}")]
+        public async Task<ActionResult<Tuile>> GetTuile(int x, int y)
         {
-            var tuile = await _context.Tuiles.FindAsync(id);
-
-            if (tuile == null)
+            if (x < 0 || y < 0 || x > 50 || y > 50)
             {
-                return NotFound();
+                return BadRequest("Position hors limite");
             }
+            var tuile = await _context.Tuiles.FindAsync(x,y);
 
-            return tuile;
-        }
-
-        // PUT: api/Tuiles/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutTuile(int id, Tuile tuile)
-        {
-            if (id != tuile.PositionX)
+            if (tuile != null)
             {
-                return BadRequest();
+                return tuile;
             }
-
-            _context.Entry(tuile).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!TuileExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Tuiles
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Tuile>> PostTuile(Tuile tuile)
-        {
+            tuile = _tuileService.GenererTuile(x,y);
             _context.Tuiles.Add(tuile);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (TuileExists(tuile.PositionX))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return CreatedAtAction("GetTuile", new { id = tuile.PositionX }, tuile);
-        }
-
-        // DELETE: api/Tuiles/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTuile(int id)
-        {
-            var tuile = await _context.Tuiles.FindAsync(id);
-            if (tuile == null)
-            {
-                return NotFound();
-            }
-
-            _context.Tuiles.Remove(tuile);
             await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool TuileExists(int id)
-        {
-            return _context.Tuiles.Any(e => e.PositionX == id);
+            return Ok(tuile);
+            
         }
     }
 }
