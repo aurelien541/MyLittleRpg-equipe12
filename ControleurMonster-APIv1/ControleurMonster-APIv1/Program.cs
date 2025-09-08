@@ -1,4 +1,5 @@
 using ControleurMonster_APIv1.Data.Context;
+using ControleurMonster_APIv1.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +9,8 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<TuileService>();
 
 builder.Services.AddDbContext<MonsterContext>(options =>
 {
