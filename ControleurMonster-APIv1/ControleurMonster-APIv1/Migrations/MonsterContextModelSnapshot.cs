@@ -64,6 +64,29 @@ namespace ControleurMonster_APIv1.Migrations
 
                     b.ToTable("Monster");
                 });
+
+            modelBuilder.Entity("ControleurMonster_APIv1.Models.Tuile", b =>
+                {
+                    b.Property<int>("PositionX")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PositionY")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("estTraversable")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("imageURL")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("PositionX", "PositionY");
+
+                    b.ToTable("Tuiles");
+                });
 #pragma warning restore 612, 618
         }
     }
